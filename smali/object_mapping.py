@@ -17,22 +17,15 @@
 # program. If not, go to http://www.gnu.org/licenses/gpl.html
 # or write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+from smali.objects.string import String
+from smali.objects.string_builder import StringBuilder
 
 # This class holds the mapping of Java objects and methods to their Python respective.
 class ObjectMapping:
     def __init__(self):
         self.mapping = {
-            'java.lang.String': {
-                'charAt(I)C': self.string_charat
-            },
-
-            'java.lang.StringBuilder': {
-                'new-instance': self.stringbuilder_new_instance,
-                '<init>()V': self.stringbuilder_init,
-                'append(Ljava/lang/String;)Ljava/lang/StringBuilder;': self.stringbuilder_append,
-                'append(C)Ljava/lang/StringBuilder;': self.stringbuilder_append,
-                'toString()Ljava/lang/String;': self.stringbuilder_tostring
-            }
+            String.name(): String.methods(),
+            StringBuilder.name(): StringBuilder.methods()
         }
 
     @staticmethod
@@ -83,26 +76,3 @@ class ObjectMapping:
                 vm.emu.fatal("Unsupported method '%s' for class '%s'." % ( method_name, class_name ))
         else:
             vm.emu.fatal("Unsupported class '%s'." % class_name)
-
-    @staticmethod
-    def string_charat( vm, this, args ):
-        idx = vm[args][0]
-        obj = vm[this]
-        vm.return_v = obj[idx]
-
-    @staticmethod
-    def stringbuilder_new_instance():
-        return ""
-
-    @staticmethod
-    def stringbuilder_init( vm, this, args ):
-        pass
-
-    @staticmethod
-    def stringbuilder_append( vm, this, args ):
-        vm[this] += vm[args[0]]
-        vm.return_v = vm[this]
-
-    @staticmethod
-    def stringbuilder_tostring( vm, this, args ):
-        vm.return_v = str(vm[this])
