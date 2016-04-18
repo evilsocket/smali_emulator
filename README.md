@@ -8,7 +8,7 @@ You'll find some examples in the `tests` folder of this project.
 
 #### Note
 
-This is highly experimental, a very small subsets of Dalvik opcodes are currently emulated, see the `smali/opcodes.py` file for more details.
+This is highly experimental, a very small subset of the Dalvik opcodes is currently supported, see the `smali/opcodes.py` file for more details.
 
 #### License
 
