@@ -107,6 +107,14 @@ class Emulator:
                 else:
                     self.vm.labels[line] = index
 
+    def __parse_line(self, line):
+        # Search for appropriate parser.
+        for parser in self.opcodes:
+            if parser.parse(line, self.vm):
+                return True
+
+        return False
+
     @staticmethod
     def __should_skip_line(line):
         """
@@ -153,20 +161,13 @@ class Emulator:
         # Loop each line and emulate.
         while self.vm.stop is False:
             self.stats.steps += 1
-            parsed = False
             line = self.source[self.vm.pc]
             self.vm.pc += 1
 
             if self.__should_skip_line(line):
                 continue
 
-            # Search for appropriate parser.
-            for parser in self.opcodes:
-                if parser.parse(line, self.vm):
-                    parsed = True
-                    break
-
-            if not parsed:
+            elif self.__parse_line(line) is False:
                 self.fatal( "Unsupported opcode." )
 
         e = time.time() * 1000
