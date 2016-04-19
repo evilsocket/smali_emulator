@@ -32,6 +32,8 @@ class VM:
         self.variables = {}
         # try/catch blocks container with opcodes offsets
         self.catch_blocks = []
+        # packed switches containers
+        self.packed_switches = {}
         # list of thrown exceptions
         self.exceptions = []
         # holds the result of the last method invocation

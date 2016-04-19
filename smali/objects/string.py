@@ -25,10 +25,32 @@ class String:
 
     @staticmethod
     def methods():
-        return { 'charAt(I)C': String.charat }
+        return {
+            'new-instance': String.new_instance,
+            '<init>([C)V': String.init_from_char_array,
+            'charAt(I)C': String.charat,
+            'toCharArray()[C': String.tochararray,
+            'intern()Ljava/lang/String;': String.repr_intern
+        }
+
+    @staticmethod
+    def repr_intern(vm, this, args):
+        return str(vm[this])
+
+    @staticmethod
+    def new_instance():
+        return ""
+
+    @staticmethod
+    def init_from_char_array(vm, this, args):
+        vm[this] = "".join(vm[args[0]])
 
     @staticmethod
     def charat(vm, this, args):
         idx = vm[args][0]
         obj = vm[this]
         vm.return_v = obj[idx]
+
+    @staticmethod
+    def tochararray(vm, this, args):
+        vm.return_v = list(vm[this])
