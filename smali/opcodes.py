@@ -54,7 +54,7 @@ class op_Const(OpCode):
 
 class op_ConstString(OpCode):
     def __init__(self):
-        OpCode.__init__(self, '^const-string(?:/jumbo) (.+),\s*"([^"]*)"')
+        OpCode.__init__(self, '^const-string (.+),\s*"([^"]*)"')
 
     @staticmethod
     def eval(vm, vx, s):
@@ -148,7 +148,7 @@ class op_ArrayLength(OpCode):
 
 class op_Aget(OpCode):
     def __init__(self):
-        OpCode.__init__(self, '^aget-(?:object|char) (.+),\s*(.+),\s*(.+)')
+        OpCode.__init__(self, '^aget[\-a-z]* (.+),\s*(.+),\s*(.+)')
 
     @staticmethod
     def eval(vm, vx, vy, vz):
