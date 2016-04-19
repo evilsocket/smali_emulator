@@ -25,7 +25,7 @@ import sys
 import time
 
 # Holds some statistics.
-class Stats:
+class Stats(object):
     def __init__(self, vm):
         self.opcodes = len(vm.opcodes)
         self.preproc = 0
@@ -40,7 +40,7 @@ class Stats:
         return s
 
 # The main emulator class.
-class Emulator:
+class Emulator(object):
     def __init__(self):
         # Instance of the virtual machine.
         self.vm      = None

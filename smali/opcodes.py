@@ -19,7 +19,7 @@
 import re
 
 # Base class for all Dalvik opcodes ( see http://pallergabor.uw.hu/androidblog/dalvik_opcodes.html ).
-class OpCode:
+class OpCode(object):
     def __init__(self, expression):
         self.expression = re.compile(expression)
 

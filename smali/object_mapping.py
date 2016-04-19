@@ -21,7 +21,7 @@ from smali.objects.string import String
 from smali.objects.string_builder import StringBuilder
 
 # This class holds the mapping of Java objects and methods to their Python respective.
-class ObjectMapping:
+class ObjectMapping(object):
     def __init__(self):
         self.mapping = {
             String.name(): String.methods(),

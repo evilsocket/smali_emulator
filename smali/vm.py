@@ -20,7 +20,7 @@
 from smali.object_mapping import ObjectMapping
 
 # The virtual machine used by the emulator.
-class VM:
+class VM(object):
     def __init__(self, emulator):
         # we need the emulator instance in order to call its 'fatal' method.
         self.emu = emulator

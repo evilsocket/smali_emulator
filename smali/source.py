@@ -19,7 +19,7 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 
 # Class to hold the source file data.
-class Source:
+class Source(object):
     def __init__(self, filename):
         self.filename = filename
         self.lines    = list(open(filename, 'r'))
