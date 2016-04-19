@@ -54,7 +54,7 @@ class op_Const(OpCode):
 
 class op_ConstString(OpCode):
     def __init__(self):
-        OpCode.__init__(self, '^const-string (.+),\s*"([^"]*)"')
+        OpCode.__init__(self, '^const-string(?:/jumbo)? (.+),\s*"([^"]*)"')
 
     @staticmethod
     def eval(vm, vx, s):
