@@ -93,6 +93,7 @@ class Emulator:
         for fast lookups while jumping and will pre parse all the try/catch directives.
         """
         self.source.lines = map( str.strip, self.source.lines )
+        current_packed_switch = None
         for index, line in enumerate(self.source.lines):
             # label marker?
             if line != '' and line[0] == ':':
@@ -104,8 +105,16 @@ class Emulator:
                 elif line.startswith( ':try_end_' ):
                     pass
 
+                elif line.startswith( ':pswitch_data' ):
+                    self.vm.packed_switches[line] = []
+                    current_packed_switch = line
+                elif line.startswith( ':pswitch_' ) and current_packed_switch is not None:
+                    self.vm.packed_switches[current_packed_switch].append(line)
+
                 else:
                     self.vm.labels[line] = index
+            if line == '.end packed-switch':
+                current_packed_switch = None
 
     def __parse_line(self, line):
         # Search for appropriate parser.

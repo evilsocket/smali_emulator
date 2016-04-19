@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # This file is part of the Smali Emulator.
 #
 # Copyright(c) 2016 Simone 'evilsocket' Margaritelli
@@ -55,11 +54,11 @@ class op_Const(OpCode):
 
 class op_ConstString(OpCode):
     def __init__(self):
-        OpCode.__init__(self, '^const-string (.+),\s*"([^"]*)"')
+        OpCode.__init__(self, '^const-string(?:/jumbo) (.+),\s*"([^"]*)"')
 
     @staticmethod
     def eval(vm, vx, s):
-        vm[vx] = s
+        vm[vx] = s.decode('unicode_escape')
 
 class op_Move(OpCode):
     def __init__(self):
@@ -103,6 +102,15 @@ class op_IfGe(OpCode):
         if vm[vx] >= vm[vy]:
             vm.goto(label)
 
+class op_IfGt(OpCode):
+    def __init__(self):
+        OpCode.__init__(self, '^if-gt (.+),\s*(.+),\s*(\:.+)')
+
+    @staticmethod
+    def eval(vm, vx, vy, label):
+        if vm[vx] > vm[vy]:
+            vm.goto(label)
+
 class op_IfLez(OpCode):
     def __init__(self):
         OpCode.__init__(self, '^if-lez (.+),\s*(\:.+)')
@@ -140,7 +148,7 @@ class op_ArrayLength(OpCode):
 
 class op_Aget(OpCode):
     def __init__(self):
-        OpCode.__init__(self, '^aget (.+),\s*(.+),\s*(.+)')
+        OpCode.__init__(self, '^aget-(?:object|char) (.+),\s*(.+),\s*(.+)')
 
     @staticmethod
     def eval(vm, vx, vy, vz):
@@ -170,7 +178,11 @@ class op_XorInt2Addr(OpCode):
 
     @staticmethod
     def eval(vm, _, vx, vy):
-        vm[vx] ^= vm[vy]
+        # test if vm[vy] is a char instead of an int
+        if isinstance(vm[vy], int):
+            vm[vx] ^= int(vm[vy])
+        else:
+            vm[vx] ^= ord(vm[vy])
 
 class op_DivInt(OpCode):
     def __init__(self):
@@ -203,6 +215,29 @@ class op_NewInstance(OpCode):
     @staticmethod
     def eval(vm, vx, klass):
         vm[vx] = vm.new_instance(klass)
+
+class op_NewArray(OpCode):
+    def __init__(self):
+        OpCode.__init__(self, '^new-array (.+),\s*(.+),\s*\[(.+)')
+
+    @staticmethod
+    def eval(vm, vx, vy, klass):
+        vm[vx] = []
+
+class op_APut(OpCode):
+    def __init__(self):
+        OpCode.__init__(self, '^aput-(?:object|char) (.+),\s*(.+),\s*(.+)')
+
+    @staticmethod
+    def eval(vm, vx, vy, vz):
+        idx = int(vm[vz])
+        arr = vm[vy]
+        val = vm[vx]
+        if len(arr) > idx:
+            arr[idx] = val
+        elif idx == len(arr):
+            arr.append(val)
+        vm[vy] = arr
 
 class op_Invoke(OpCode):
     def __init__(self):
@@ -245,3 +280,25 @@ class op_Return(OpCode):
 
         else:
             vm.fatal( "Unsupported return type." )
+
+class op_RemInt(OpCode):
+    def __init__(self):
+        OpCode.__init__(self, '^rem-int/lit\d+ (.+),\s*(.+),\s*(.+)')
+
+    @staticmethod
+    def eval(vm, vx, vy, lit):
+        vm[vx] = int(vm[vy]) % OpCode.get_int_value(lit)
+
+class op_PackedSwitch(OpCode):
+    def __init__(self):
+        OpCode.__init__(self, '^packed-switch (.+),\s*(.+)')
+
+    @staticmethod
+    def eval(vm, vx, table):
+        val = vm[vx]
+        cases = vm.packed_switches.get(table, [])
+        if val >= len(cases):
+            return
+
+        case_label = cases[val]
+        vm.goto(case_label)
