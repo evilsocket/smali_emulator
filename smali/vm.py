@@ -51,6 +51,9 @@ class VM(object):
     def __setitem__(self, name, value):
         self.variables[name] = value
 
+    def fatal(self, message):
+        self.emu.fatal(message)
+
     def goto(self, label):
         self.pc = self.labels[label]
 

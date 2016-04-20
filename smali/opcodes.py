@@ -393,8 +393,10 @@ class op_PackedSwitch(OpCode):
         switch = vm.packed_switches.get(table, {})
         cases = switch.get('cases', [])
         case_idx = val - switch.get('first_value')
+
         if case_idx >= len(cases):
             return
 
         case_label = cases[case_idx]
+
         vm.goto(case_label)

@@ -17,20 +17,21 @@
 # program. If not, go to http://www.gnu.org/licenses/gpl.html
 # or write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
-import sys, os, fnmatch, time
+import sys, os, fnmatch, time, traceback
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
 from smali.emulator import Emulator
 
 
 
-def get_data_files():
+def get_data_files(file_filter):
     files = []
     datapath = os.path.join( os.path.dirname(__file__), 'data' )
 
     for root, dirnames, filenames in os.walk(datapath):
         for filename in fnmatch.filter(filenames, '*.smali'):
-            files.append( os.path.join( root, filename ) )
+            if file_filter is None or file_filter in filename:
+                files.append( os.path.join( root, filename ) )
 
     return files
 
@@ -44,30 +45,44 @@ def run_data_file(datafile):
 def get_desired_output(datafile):
     return open(datafile).read().split("\n")[0][1:].strip()
 
+def ppassed():
+    print "\x1b[32mPASSED\x1b[0m"
 
-files = get_data_files()
+def pfail(test,out):
+    print "\x1b[31mFAILED\x1b[0m\n"
+    print "  Expected : %s" % test
+    print "  Got      : %s" % out
+    print
+
+def pexception(e):
+    print "\x1b[31mFAILED\x1b[0m\n"
+    print traceback.format_exc()
+
+file_filter = sys.argv[1] if len(sys.argv) == 2 else None
+files = get_data_files(file_filter)
 total = len(files)
 passed = 0
 failed = 0
 exceptions = 0
 start = time.time() * 1000
+just = len(max(files, key=len))
 
 for datafile in files:
-    sys.stdout.write( "Testing %s : " % datafile )
+    sys.stdout.write( "Testing %s : " % datafile.ljust(just) )
 
     try:
         out = run_data_file(datafile)
         test = get_desired_output(datafile)
 
         if out == test:
-            print "PASSED"
+            ppassed()
             passed += 1
         else:
-            print "FAILED ( expected '%s' - got '%s' )" % ( test, out )
+            pfail( test, out )
             failed += 1
 
     except Exception as e:
-        print "FAILED ( %s )" % e
+        pexception(e)
         exceptions += 1
 
 elapsed = ( time.time() * 1000 ) - start

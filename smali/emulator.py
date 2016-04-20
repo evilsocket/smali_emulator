@@ -20,6 +20,7 @@
 from smali.opcodes import *
 from smali.vm import VM
 from smali.source import Source
+from smali.preprocessors import *
 
 import sys
 import time
@@ -48,6 +49,11 @@ class Emulator(object):
         self.source  = None
         # Instance of the statistics object.
         self.stats   = None
+        # Code preprocessors.
+        self.preprocessors = [
+            TryCatchPreprocessor,
+            PackedSwitchPreprocessor
+        ]
         # Opcodes handlers.
         self.opcodes = []
 
@@ -57,70 +63,35 @@ class Emulator(object):
             if entry.startswith('op_'):
                 self.opcodes.append( globals()[entry]() )
 
-    @staticmethod
-    def __catch_expression(block_id):
-        """
-        Helper method to create a regular expression to parse a '.catch' directives for a given block.
-        :param block_id: The block number found in the :try_start_BLOCK_ID label.
-        :return: A regular expression.
-        """
-        return '^\.catch [^\s]+ \{:try_start_%s[ \.]+:try_end_%s\}\s*(\:.+)' % (block_id,block_id )
-
-    def __preprocess_trycatch_block(self, index, line):
-        """
-        Will search the '.catch' directive and update the VM accordingly.
-        :param index: The index of the line to start the research from.
-        :param line: The line where the :try_start_BLOCK_ID label was found.
-        """
-        # get block identifier
-        block_id = line.split('_')[2]
-        # search for next pattern:
-        #
-        #   .catch Ljava/lang/Exception; {:try_start_BLOCK_ID .. :try_end_BLOCK_ID} :LABEL
-        #
-        for nindex, nline in enumerate(self.source.lines[index + 1:]):
-            # TODO: Save exception type for specific catch.
-            m = re.search( self.__catch_expression(block_id), nline )
-            if m:
-                label = m.group(1)
-                eindex = nindex + index + 1
-                self.vm.catch_blocks.append((index, eindex, label))
-                break
-
     def __preprocess(self):
         """
         Start the preprocessing phase which will save all the labels and their line index
         for fast lookups while jumping and will pre parse all the try/catch directives.
         """
+        next_line = None
         self.source.lines = map( str.strip, self.source.lines )
-        current_packed_switch = None
         for index, line in enumerate(self.source.lines):
-            # label marker?
-            if line != '' and line[0] == ':':
-                # check for try/catch blocks
-                if line.startswith( ':try_start_' ):
-                    self.__preprocess_trycatch_block(index,line)
+            # we're inside a block which was already processed
+            if next_line is not None and index <= next_line:
+                next_line = None if index == next_line else next_line
+                continue
 
-                # we already considered this ... hopefully :P
-                elif line.startswith( ':try_end_' ):
-                    pass
+            # skip empty lines
+            elif line == '':
+                continue
 
-                elif line.startswith( ':pswitch_data' ):
-                    self.vm.packed_switches[line] = {"first_value": 0, "cases": []}
-                    current_packed_switch = line
-                elif line.startswith( ':pswitch_' ) and current_packed_switch is not None:
-                    self.vm.packed_switches[current_packed_switch]["cases"].append(line)
+            # we've found something to preprocess
+            elif line[0] == ':':
+                # loop each preprocessors and search for the one responsible to parse this line
+                processed = False
+                for preproc in self.preprocessors:
+                    if preproc.check(line):
+                        next_line = preproc.process( self.vm, line, index, self.source.lines )
+                        processed = True
 
-                else:
+                # no preprocessor found, this is a normal label
+                if processed  is False:
                     self.vm.labels[line] = index
-
-            if line != '' and line[0] == '.':
-                if line.startswith(".packed-switch "):
-                    first_value = int(line.split(' ')[1], 16)
-                    switch = self.vm.packed_switches[current_packed_switch]
-                    switch["first_value"] = first_value
-                elif line == '.end packed-switch':
-                    current_packed_switch = None
 
     def __parse_line(self, line):
         # Search for appropriate parser.
