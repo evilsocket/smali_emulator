@@ -246,6 +246,14 @@ class op_DivInt(OpCode):
     def eval(vm, vx, vy, vz):
         vm[vx] = vm[vy] / vm[vz]
 
+class op_AddInt(OpCode):
+    def __init__(self):
+        OpCode.__init__(self, '^add-int (.+),\s*(.+),\s*(.+)')
+
+    @staticmethod
+    def eval(vm, vx, vy, vz):
+        vm[vx] = vm[vy] + vm[vz]
+
 class op_SubInt(OpCode):
     def __init__(self):
         OpCode.__init__(self, '^sub-int (.+),\s*(.+),\s*(.+)')
@@ -253,6 +261,46 @@ class op_SubInt(OpCode):
     @staticmethod
     def eval(vm, vx, vy, vz):
         vm[vx] = vm[vy] - vm[vz]
+        
+class op_MulInt(OpCode):
+    def __init__(self):
+        OpCode.__init__(self, '^mul-int (.+),\s*(.+),\s*(.+)')
+
+    @staticmethod
+    def eval(vm, vx, vy, vz):
+        vm[vx] = vm[vy] * vm[vz]
+        
+class op_RemInt(OpCode):
+    def __init__(self):
+        OpCode.__init__(self, '^rem-int (.+),\s*(.+),\s*(.+)')
+
+    @staticmethod
+    def eval(vm, vx, vy, vz):
+        vm[vx] = vm[vy] % vm[vz]
+        
+class op_AndInt(OpCode):
+    def __init__(self):
+        OpCode.__init__(self, '^and-int (.+),\s*(.+),\s*(.+)')
+
+    @staticmethod
+    def eval(vm, vx, vy, vz):
+        vm[vx] = vm[vy] & vm[vz]
+        
+class op_OrInt(OpCode):
+    def __init__(self):
+        OpCode.__init__(self, '^or-int (.+),\s*(.+),\s*(.+)')
+
+    @staticmethod
+    def eval(vm, vx, vy, vz):
+        vm[vx] = vm[vy] | vm[vz]
+        
+class op_XorInt(OpCode):
+    def __init__(self):
+        OpCode.__init__(self, '^xor-int (.+),\s*(.+),\s*(.+)')
+
+    @staticmethod
+    def eval(vm, vx, vy, vz):
+        vm[vx] = vm[vy] ^ vm[vz]
 
 class op_GoTo(OpCode):
     def __init__(self):
