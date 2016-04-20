@@ -246,6 +246,14 @@ class op_DivInt(OpCode):
     def eval(vm, vx, vy, vz):
         vm[vx] = vm[vy] / vm[vz]
 
+class op_AddInt(OpCode):
+    def __init__(self):
+        OpCode.__init__(self, '^add-int (.+),\s*(.+),\s*(.+)')
+
+    @staticmethod
+    def eval(vm, vx, vy, vz):
+        vm[vx] = vm[vy] + vm[vz]
+
 class op_SubInt(OpCode):
     def __init__(self):
         OpCode.__init__(self, '^sub-int (.+),\s*(.+),\s*(.+)')
