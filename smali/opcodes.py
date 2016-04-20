@@ -381,7 +381,7 @@ class op_Return(OpCode):
             vm.stop = True
 
         else:
-            vm.fatal( "Unsupported return type." )
+            vm.emu.fatal( "Unsupported return type." )
 
 class op_RemInt(OpCode):
     def __init__(self):
