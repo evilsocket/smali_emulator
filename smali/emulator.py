@@ -124,13 +124,15 @@ class Emulator(object):
         print "\n%s" % message
         quit()
 
-    def run(self, filename, args = {}):
+    def run(self, filename, args = {}, trace=False):
         """
         Load a smali file and start emulating it.
         :param filename: The path of the file to load and emulate.
         :param args: A dictionary of optional initialization variables for the VM, mostly used for arguments.
+        :param trace: If true every opcode being executed will be printed.
         :return: The return value of the emulated method or None if no return-* opcode was executed.
         """
+        OpCode.trace = trace
         self.source = Source(filename)
         self.vm     = VM(self)
         self.stats  = Stats(self)

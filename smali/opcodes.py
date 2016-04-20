@@ -20,6 +20,8 @@ import re
 
 # Base class for all Dalvik opcodes ( see http://pallergabor.uw.hu/androidblog/dalvik_opcodes.html ).
 class OpCode(object):
+    trace = False
+
     def __init__(self, expression):
         self.expression = re.compile(expression)
 
@@ -35,7 +37,8 @@ class OpCode(object):
         if m is None:
             return False
 
-        # print "%03d %s" % ( vm.pc, line )
+        if OpCode.trace is True:
+            print "%03d %s" % ( vm.pc, line )
 
         try:
             self.eval(vm, *[x.strip() if x is not None else x for x in m.groups()])
