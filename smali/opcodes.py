@@ -46,10 +46,10 @@ class OpCode(object):
 
 class op_Const(OpCode):
     def __init__(self):
-        OpCode.__init__(self, '^const/\d+ (.+),\s*(.+)')
+        OpCode.__init__(self, '^const(/\d+)? (.+),\s*(.+)')
 
     @staticmethod
-    def eval(vm, vx, lit):
+    def eval(vm, _, vx, lit):
         vm[vx] = OpCode.get_int_value(lit)
 
 class op_ConstString(OpCode):
@@ -293,14 +293,6 @@ class op_OrInt(OpCode):
     @staticmethod
     def eval(vm, vx, vy, vz):
         vm[vx] = vm[vy] | vm[vz]
-        
-class op_XorInt(OpCode):
-    def __init__(self):
-        OpCode.__init__(self, '^xor-int (.+),\s*(.+),\s*(.+)')
-
-    @staticmethod
-    def eval(vm, vx, vy, vz):
-        vm[vx] = vm[vy] ^ vm[vz]
 
 class op_GoTo(OpCode):
     def __init__(self):
@@ -320,18 +312,18 @@ class op_NewInstance(OpCode):
 
 class op_NewArray(OpCode):
     def __init__(self):
-        OpCode.__init__(self, '^new-array (.+),\s*(.+),\s*\[(.+)')
+        OpCode.__init__(self, '^new-array (.+),\s*(.+),\s*(.+)')
 
     @staticmethod
     def eval(vm, vx, vy, klass):
-        vm[vx] = []
+        vm[vx] = [""] * vm[vy]
 
 class op_APut(OpCode):
     def __init__(self):
-        OpCode.__init__(self, '^aput-(?:object|char) (.+),\s*(.+),\s*(.+)')
+        OpCode.__init__(self, '^aput(-[a-z]+)? (.+),\s*(.+),\s*(.+)')
 
     @staticmethod
-    def eval(vm, vx, vy, vz):
+    def eval(vm, _, vx, vy, vz):
         idx = int(vm[vz])
         arr = vm[vy]
         val = vm[vx]
@@ -372,7 +364,7 @@ class op_Return(OpCode):
 
     @staticmethod
     def eval(vm, ctype, vx):
-        if ctype in ( '', '-wide', '-object' ):
+        if ctype in ( None, '', '-wide', '-object' ):
             vm.return_v = vm[vx]
             vm.stop = True
 
@@ -383,7 +375,7 @@ class op_Return(OpCode):
         else:
             vm.emu.fatal( "Unsupported return type." )
 
-class op_RemInt(OpCode):
+class op_RemIntLit(OpCode):
     def __init__(self):
         OpCode.__init__(self, '^rem-int/lit\d+ (.+),\s*(.+),\s*(.+)')
 
