@@ -277,6 +277,14 @@ class op_RemInt(OpCode):
     @staticmethod
     def eval(vm, vx, vy, vz):
         vm[vx] = vm[vy] % vm[vz]
+        
+class op_AndInt(OpCode):
+    def __init__(self):
+        OpCode.__init__(self, '^and-int (.+),\s*(.+),\s*(.+)')
+
+    @staticmethod
+    def eval(vm, vx, vy, vz):
+        vm[vx] = vm[vy] & vm[vz]
 
 class op_GoTo(OpCode):
     def __init__(self):
