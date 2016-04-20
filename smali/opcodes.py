@@ -120,6 +120,33 @@ class op_IfLez(OpCode):
         if vm[vx] <= 0:
             vm.goto(label)
 
+class op_IfEq(OpCode):
+    def __init__(self):
+        OpCode.__init__(self, '^if-eq (.+),\s*(.+),\s*(\:.+)')
+
+    @staticmethod
+    def eval(vm, vx, vy, label):
+        if vm[vx] == vm[vy]:
+            vm.goto(label)
+            
+class op_IfNe(OpCode):
+    def __init__(self):
+        OpCode.__init__(self, '^if-ne (.+),\s*(.+),\s*(\:.+)')
+
+    @staticmethod
+    def eval(vm, vx, vy, label):
+        if vm[vx] != vm[vy]:
+            vm.goto(label)
+            
+class op_IfLt(OpCode):
+    def __init__(self):
+        OpCode.__init__(self, '^if-lt (.+),\s*(.+),\s*(\:.+)')
+
+    @staticmethod
+    def eval(vm, vx, vy, label):
+        if vm[vx] < vm[vy]:
+            vm.goto(label)
+
 class op_IfEqz(OpCode):
     def __init__(self):
         OpCode.__init__(self, '^if-eqz (.+),\s*(\:.+)')
