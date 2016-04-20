@@ -390,9 +390,11 @@ class op_PackedSwitch(OpCode):
     @staticmethod
     def eval(vm, vx, table):
         val = vm[vx]
-        cases = vm.packed_switches.get(table, [])
-        if val >= len(cases):
+        switch = vm.packed_switches.get(table, {})
+        cases = switch.get('cases', [])
+        case_idx = val - switch.get('first_value')
+        if case_idx >= len(cases):
             return
 
-        case_label = cases[val]
+        case_label = cases[case_idx]
         vm.goto(case_label)

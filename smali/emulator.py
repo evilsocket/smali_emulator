@@ -106,15 +106,21 @@ class Emulator(object):
                     pass
 
                 elif line.startswith( ':pswitch_data' ):
-                    self.vm.packed_switches[line] = []
+                    self.vm.packed_switches[line] = {"first_value": 0, "cases": []}
                     current_packed_switch = line
                 elif line.startswith( ':pswitch_' ) and current_packed_switch is not None:
-                    self.vm.packed_switches[current_packed_switch].append(line)
+                    self.vm.packed_switches[current_packed_switch]["cases"].append(line)
 
                 else:
                     self.vm.labels[line] = index
-            if line == '.end packed-switch':
-                current_packed_switch = None
+
+            if line != '' and line[0] == '.':
+                if line.startswith(".packed-switch "):
+                    first_value = int(line.split(' ')[1], 16)
+                    switch = self.vm.packed_switches[current_packed_switch]
+                    switch["first_value"] = first_value
+                elif line == '.end packed-switch':
+                    current_packed_switch = None
 
     def __parse_line(self, line):
         # Search for appropriate parser.
