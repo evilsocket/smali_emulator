@@ -10,6 +10,9 @@ You'll find some examples in the `examples` folder of this project.
 
 This is highly experimental, a very small subset of the Dalvik opcodes is currently supported, see the `smali/opcodes.py` file for more details.
 
+OpCodes List (Feel free to request access)
+https://docs.google.com/spreadsheets/d/1RfB_LsBoYnJxOh-lDCSMR0mfLBl1UlwdW9eKw2p03DY/edit?usp=sharing
+
 #### License
 
 Copyright (c) 2016 Simone Margaritelli | [Twitter](https://twitter.com/evilsocket) | [Blog](http://www.evilsocket.net)  
