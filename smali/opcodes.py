@@ -101,6 +101,24 @@ class op_IfGe(OpCode):
     def eval(vm, vx, vy, label):
         if vm[vx] >= vm[vy]:
             vm.goto(label)
+            
+class op_IfGez(OpCode):
+    def __init__(self):
+        OpCode.__init__(self, '^if-gez (.+),\s*(\:.+)')
+        
+    @staticmethod
+    def eval(vm, vx, label):
+        if vm[vx] >= 0:
+            vm.goto(label)
+            
+class op_IfLtz(OpCode):
+    def __init__(self):
+        OpCode.__init__(self, '^if-ltz (.+),\s*(\:.+)')
+        
+    @staticmethod
+    def eval(vm, vx, label):
+        if vm[vx] < 0:
+            vm.goto(label)
 
 class op_IfGt(OpCode):
     def __init__(self):
@@ -109,6 +127,15 @@ class op_IfGt(OpCode):
     @staticmethod
     def eval(vm, vx, vy, label):
         if vm[vx] > vm[vy]:
+            vm.goto(label)
+            
+class op_IfGtz(OpCode):
+    def __init__(self):
+        OpCode.__init__(self, '^if-gtz (.+),\s*(\:.+)')
+        
+    @staticmethod
+    def eval(vm, vx, label):
+        if vm[vx] > 0:
             vm.goto(label)
 
 class op_IfLez(OpCode):
