@@ -24,6 +24,9 @@ class Source(object):
         self.filename = filename
         self.lines    = list(open(filename, 'r'))
 
+    def has_line(self,index):
+        return True if 0 <= index < len(self.lines) else False
+
     def __getitem__(self, index):
         return self.lines[index]
 

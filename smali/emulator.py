@@ -168,7 +168,7 @@ class Emulator(object):
 
         s = time.time() * 1000
         # Loop each line and emulate.
-        while self.vm.stop is False:
+        while self.vm.stop is False and self.source.has_line(self.vm.pc):
             self.stats.steps += 1
             line = self.source[self.vm.pc]
             self.vm.pc += 1
