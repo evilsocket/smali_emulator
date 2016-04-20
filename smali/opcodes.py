@@ -293,6 +293,14 @@ class op_OrInt(OpCode):
     @staticmethod
     def eval(vm, vx, vy, vz):
         vm[vx] = vm[vy] | vm[vz]
+        
+class op_XorInt(OpCode):
+    def __init__(self):
+        OpCode.__init__(self, '^xor-int (.+),\s*(.+),\s*(.+)')
+
+    @staticmethod
+    def eval(vm, vx, vy, vz):
+        vm[vx] = vm[vy] ^ vm[vz]
 
 class op_GoTo(OpCode):
     def __init__(self):
