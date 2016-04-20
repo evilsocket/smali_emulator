@@ -269,6 +269,14 @@ class op_MulInt(OpCode):
     @staticmethod
     def eval(vm, vx, vy, vz):
         vm[vx] = vm[vy] * vm[vz]
+        
+class op_RemInt(OpCode):
+    def __init__(self):
+        OpCode.__init__(self, '^rem-int (.+),\s*(.+),\s*(.+)')
+
+    @staticmethod
+    def eval(vm, vx, vy, vz):
+        vm[vx] = vm[vy] % vm[vz]
 
 class op_GoTo(OpCode):
     def __init__(self):
