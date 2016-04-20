@@ -38,7 +38,8 @@ class OpCode(object):
         # print "%03d %s" % ( vm.pc, line )
 
         try:
-            self.eval(vm, *m.groups())
+            args = map( str.strip, m.groups() )
+            self.eval(vm, *args)
         except Exception as e:
             vm.exception(e)
 
