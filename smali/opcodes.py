@@ -285,6 +285,14 @@ class op_AndInt(OpCode):
     @staticmethod
     def eval(vm, vx, vy, vz):
         vm[vx] = vm[vy] & vm[vz]
+        
+class op_OrInt(OpCode):
+    def __init__(self):
+        OpCode.__init__(self, '^or-int (.+),\s*(.+),\s*(.+)')
+
+    @staticmethod
+    def eval(vm, vx, vy, vz):
+        vm[vx] = vm[vy] | vm[vz]
 
 class op_GoTo(OpCode):
     def __init__(self):
