@@ -361,18 +361,38 @@ class op_IntToType(OpCode):
         else:
             vm.emu.fatal( "Unsupported type '%s'." % ctype )
 
+class op_SPut(OpCode):
+    def __init__(self):
+        #sput-object v9, Lcom/whatsapp/messaging/a;->z:[Ljava/lang/String;
+        #aput-object v6, v8, v7
+        OpCode.__init__(self, '^sput-object+\s(.+),\s*(.+)')
+
+    @staticmethod
+    def eval(vm, vx, staticVariableName):
+        vm.variables[staticVariableName] = vm.variables[vx]
+
+class op_SGet(OpCode):
+    def __init__(self):
+        #sput-object v9, Lcom/whatsapp/messaging/a;->z:[Ljava/lang/String;
+        #aput-object v6, v8, v7
+        OpCode.__init__(self, '^sget-object+\s(.+),\s*(.+)')
+
+    @staticmethod
+    def eval(vm, vx, staticVariableName):
+        vm.variables[vx] = vm.variables[staticVariableName]
+
 class op_Return(OpCode):
     def __init__(self):
-        OpCode.__init__(self, '^return(-[a-z]+)?\s*(.+)')
+        OpCode.__init__(self, '^return(-[a-z]*)*\s*(.+)*')
 
     @staticmethod
     def eval(vm, ctype, vx):
-        if ctype in ( None, '', '-wide', '-object' ):
-            vm.return_v = vm[vx]
+        if ctype is None or ctype == '-void':
+            vm.return_v = None
             vm.stop = True
 
-        elif ctype == '-void':
-            vm.return_v = None
+        elif ctype in ( '-wide', '-object' ):
+            vm.return_v = vm[vx]
             vm.stop = True
 
         else:
