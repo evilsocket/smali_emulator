@@ -417,7 +417,7 @@ class op_PackedSwitch(OpCode):
         cases = switch.get('cases', [])
         case_idx = val - switch.get('first_value')
 
-        if case_idx >= len(cases):
+        if case_idx >= len(cases) or case_idx < 0:
             return
 
         case_label = cases[case_idx]
