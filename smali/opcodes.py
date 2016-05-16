@@ -387,11 +387,10 @@ class op_Return(OpCode):
 
     @staticmethod
     def eval(vm, ctype, vx):
-        if ctype is None or ctype == '-void':
+        if (ctype is None and vx is None) or ctype == '-void':
             vm.return_v = None
             vm.stop = True
-
-        elif ctype in ( '-wide', '-object' ):
+        elif ctype in ( '-wide', '-object' ) or (ctype is None and vx is not None):
             vm.return_v = vm[vx]
             vm.stop = True
 
