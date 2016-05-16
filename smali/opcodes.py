@@ -57,7 +57,7 @@ class op_Const(OpCode):
 
 class op_ConstString(OpCode):
     def __init__(self):
-        OpCode.__init__(self, '^const-string(?:/jumbo)? (.+),\s*"([^"]*)"')
+        OpCode.__init__(self, '^const-string(?:/jumbo)? (.+),\s*"(.*)"')
 
     @staticmethod
     def eval(vm, vx, s):
@@ -338,7 +338,7 @@ class op_APut(OpCode):
 
 class op_Invoke(OpCode):
     def __init__(self):
-        OpCode.__init__(self, '^invoke-([a-z]+) \{(.+)\},\s*(.+)')
+        OpCode.__init__(self, '^invoke-([a-z]+) \{(.*)\},\s*(.+)')
 
     @staticmethod
     def eval(vm, _, args, call):
@@ -361,18 +361,37 @@ class op_IntToType(OpCode):
         else:
             vm.emu.fatal( "Unsupported type '%s'." % ctype )
 
+class op_SPut(OpCode):
+    def __init__(self):
+        #sput-object v9, Lcom/whatsapp/messaging/a;->z:[Ljava/lang/String;
+        #aput-object v6, v8, v7
+        OpCode.__init__(self, '^sput-object+\s(.+),\s*(.+)')
+
+    @staticmethod
+    def eval(vm, vx, staticVariableName):
+        vm.variables[staticVariableName] = vm.variables[vx]
+
+class op_SGet(OpCode):
+    def __init__(self):
+        #sput-object v9, Lcom/whatsapp/messaging/a;->z:[Ljava/lang/String;
+        #aput-object v6, v8, v7
+        OpCode.__init__(self, '^sget-object+\s(.+),\s*(.+)')
+
+    @staticmethod
+    def eval(vm, vx, staticVariableName):
+        vm.variables[vx] = vm.variables[staticVariableName]
+
 class op_Return(OpCode):
     def __init__(self):
-        OpCode.__init__(self, '^return(-[a-z]+)?\s*(.+)')
+        OpCode.__init__(self, '^return(-[a-z]*)*\s*(.+)*')
 
     @staticmethod
     def eval(vm, ctype, vx):
-        if ctype in ( None, '', '-wide', '-object' ):
-            vm.return_v = vm[vx]
-            vm.stop = True
-
-        elif ctype == '-void':
+        if (ctype is None and vx is None) or ctype == '-void':
             vm.return_v = None
+            vm.stop = True
+        elif ctype in ( '-wide', '-object' ) or (ctype is None and vx is not None):
+            vm.return_v = vm[vx]
             vm.stop = True
 
         else:
@@ -397,7 +416,7 @@ class op_PackedSwitch(OpCode):
         cases = switch.get('cases', [])
         case_idx = val - switch.get('first_value')
 
-        if case_idx >= len(cases):
+        if case_idx >= len(cases) or case_idx < 0:
             return
 
         case_label = cases[case_idx]
