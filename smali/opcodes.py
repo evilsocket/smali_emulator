@@ -57,7 +57,7 @@ class op_Const(OpCode):
 
 class op_ConstString(OpCode):
     def __init__(self):
-        OpCode.__init__(self, '^const-string(?:/jumbo)? (.+),\s*"([^"]*)"')
+        OpCode.__init__(self, '^const-string(?:/jumbo)? (.+),\s*"(.*)"')
 
     @staticmethod
     def eval(vm, vx, s):
@@ -338,7 +338,7 @@ class op_APut(OpCode):
 
 class op_Invoke(OpCode):
     def __init__(self):
-        OpCode.__init__(self, '^invoke-([a-z]+) \{(.+)\},\s*(.+)')
+        OpCode.__init__(self, '^invoke-([a-z]+) \{(.*)\},\s*(.+)')
 
     @staticmethod
     def eval(vm, _, args, call):
