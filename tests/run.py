@@ -37,7 +37,7 @@ def get_data_files(file_filter):
 
 def run_data_file(datafile):
     emu = Emulator()
-    ret = emu.run(datafile)
+    ret = emu.run_file(datafile)
     out = emu.vm.variables.copy()
     out.update({'ret': ret})
     return str(out)

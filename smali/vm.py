@@ -34,6 +34,8 @@ class VM(object):
         self.catch_blocks = []
         # packed switches containers
         self.packed_switches = {}
+        # array data blocks
+        self.array_data = {}
         # list of thrown exceptions
         self.exceptions = []
         # holds the result of the last method invocation
