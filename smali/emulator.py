@@ -52,7 +52,8 @@ class Emulator(object):
         # Code preprocessors.
         self.preprocessors = [
             TryCatchPreprocessor,
-            PackedSwitchPreprocessor
+            PackedSwitchPreprocessor,
+            ArrayDataPreprocessor
         ]
         # Opcodes handlers.
         self.opcodes = []
@@ -122,9 +123,14 @@ class Emulator(object):
         print "  %03d %s" % (self.vm.pc, self.source[self.vm.pc - 1])
 
         print "\n%s" % message
-        quit()
+        sys.exit()
 
-    def run(self, filename, args = {}, trace=False):
+    def run_file(self, filename, args = {}, trace=False):
+        fd = open(filename, 'r')
+        return self.run(fd, args, trace)
+
+
+    def run(self, fd, args = {}, trace=False, vm=None):
         """
         Load a smali file and start emulating it.
         :param filename: The path of the file to load and emulate.
@@ -133,11 +139,15 @@ class Emulator(object):
         :return: The return value of the emulated method or None if no return-* opcode was executed.
         """
         OpCode.trace = trace
-        self.source = Source(filename)
-        self.vm     = VM(self)
+        self.source = Source(fd)
+        if vm is None:
+            self.vm     = VM(self)
+        else:
+            self.vm = vm
         self.stats  = Stats(self)
 
-        self.vm.variables.update(args)
+        if len(args) > 0:
+            self.vm.variables.update(args)
 
         s = time.time() * 1000
         # Preprocess labels and try/catch blocks for fast lookup.

@@ -49,10 +49,10 @@ class OpCode(object):
 
 class op_Const(OpCode):
     def __init__(self):
-        OpCode.__init__(self, '^const(/\d+)? (.+),\s*(.+)')
+        OpCode.__init__(self, '^const(?:/\d+)? (.+),\s*(.+)')
 
     @staticmethod
-    def eval(vm, _, vx, lit):
+    def eval(vm, vx, lit):
         vm[vx] = OpCode.get_int_value(lit)
 
 class op_ConstString(OpCode):
@@ -65,18 +65,18 @@ class op_ConstString(OpCode):
 
 class op_Move(OpCode):
     def __init__(self):
-        OpCode.__init__(self, '^move(-object)? (.+),\s*(.+)')
+        OpCode.__init__(self, '^move(?:-object)? (.+),\s*(.+)')
 
     @staticmethod
-    def eval(vm, _, vx, vy):
+    def eval(vm, vx, vy):
         vm[vx] = vm[vy]
 
 class op_MoveResult(OpCode):
     def __init__(self):
-        OpCode.__init__(self, '^move-result(-object)? (.+)')
+        OpCode.__init__(self, '^move-result(?:-object)? (.+)')
 
     @staticmethod
-    def eval(vm, _, dest):
+    def eval(vm, dest):
         vm[dest] = vm.return_v
 
 class op_MoveException(OpCode):
@@ -203,6 +203,14 @@ class op_ArrayLength(OpCode):
     def eval(vm, vx, vy):
         vm[vx] = len(vm[vy])
 
+class op_ArrayFillData(OpCode):
+    def __init__(self):
+        OpCode.__init__(self, 'fill-array-data (.+),\s*(.+)')
+
+    @staticmethod
+    def eval(vm, vx, label):
+        vm[vx] = vm.array_data[label]["elements"]
+
 class op_Aget(OpCode):
     def __init__(self):
         OpCode.__init__(self, '^aget[\-a-z]* (.+),\s*(.+),\s*(.+)')
@@ -231,10 +239,10 @@ class op_MulIntLit(OpCode):
 
 class op_XorInt2Addr(OpCode):
     def __init__(self):
-        OpCode.__init__(self, '^xor-int(/2addr)? (.+),\s*(.+)')
+        OpCode.__init__(self, '^xor-int(?:/2addr)? (.+),\s*(.+)')
 
     @staticmethod
-    def eval(vm, _, vx, vy):
+    def eval(vm, vx, vy):
         # test if vm[vy] is a char instead of an int
         if isinstance(vm[vy], int):
             vm[vx] ^= int(vm[vy])
@@ -299,10 +307,10 @@ class op_OrInt(OpCode):
 
 class op_GoTo(OpCode):
     def __init__(self):
-        OpCode.__init__(self, '^goto(/\d+)? (:.+)')
+        OpCode.__init__(self, '^goto(?:/\d+)? (:.+)')
 
     @staticmethod
-    def eval(vm, _, label):
+    def eval(vm, label):
         vm.goto(label)
 
 class op_NewInstance(OpCode):
@@ -323,10 +331,10 @@ class op_NewArray(OpCode):
 
 class op_APut(OpCode):
     def __init__(self):
-        OpCode.__init__(self, '^aput(-[a-z]+)? (.+),\s*(.+),\s*(.+)')
+        OpCode.__init__(self, '^aput(?:-[a-z]+)? (.+),\s*(.+),\s*(.+)')
 
     @staticmethod
-    def eval(vm, _, vx, vy, vz):
+    def eval(vm, vx, vy, vz):
         idx = int(vm[vz])
         arr = vm[vy]
         val = vm[vx]
@@ -338,10 +346,10 @@ class op_APut(OpCode):
 
 class op_Invoke(OpCode):
     def __init__(self):
-        OpCode.__init__(self, '^invoke-([a-z]+) \{(.*)\},\s*(.+)')
+        OpCode.__init__(self, '^invoke-(?:[a-z]+) \{(.*)\},\s*(.+)')
 
     @staticmethod
-    def eval(vm, _, args, call):
+    def eval(vm, args, call):
         args = map(str.strip, args.split(','))
         this = args[0]
         args = args[1:]
@@ -363,9 +371,7 @@ class op_IntToType(OpCode):
 
 class op_SPut(OpCode):
     def __init__(self):
-        #sput-object v9, Lcom/whatsapp/messaging/a;->z:[Ljava/lang/String;
-        #aput-object v6, v8, v7
-        OpCode.__init__(self, '^sput-object+\s(.+),\s*(.+)')
+        OpCode.__init__(self, '^sput(?:-[a-z]+)?\s+(.+),\s*(.+)')
 
     @staticmethod
     def eval(vm, vx, staticVariableName):
@@ -373,9 +379,7 @@ class op_SPut(OpCode):
 
 class op_SGet(OpCode):
     def __init__(self):
-        #sput-object v9, Lcom/whatsapp/messaging/a;->z:[Ljava/lang/String;
-        #aput-object v6, v8, v7
-        OpCode.__init__(self, '^sget-object+\s(.+),\s*(.+)')
+        OpCode.__init__(self, '^sget(?:-[a-z]+)?\s+(.+),\s*(.+)')
 
     @staticmethod
     def eval(vm, vx, staticVariableName):

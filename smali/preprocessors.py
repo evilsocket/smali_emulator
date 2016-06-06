@@ -75,3 +75,29 @@ class PackedSwitchPreprocessor:
 
         # keep preprocessing from the end of this block
         return next_line
+
+# Preprocess array-data blocks.
+class ArrayDataPreprocessor:
+    @staticmethod
+    def check(line):
+        return line.startswith( ':array_' )
+
+    @staticmethod
+    def process(vm, name, index, lines):
+        array = {"element_width": 0, "elements": []}
+        next_line = index
+
+        for nindex, nline in enumerate(lines[index + 1:]):
+            if nline.startswith(".array-data "):
+                array["element_width"] = OpCode.get_int_value(nline.split(' ')[1])
+
+            elif nline == '.end array-data':
+                next_line = index + nindex + 1
+                break
+            else:
+                array["elements"].append(OpCode.get_int_value(nline))
+
+        vm.array_data[name] = array
+
+        # keep preprocessing from the end of this block
+        return next_line

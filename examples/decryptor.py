@@ -32,7 +32,7 @@ args = {
     'p1': 19
 }
 
-ret = emu.run( filename, args )
+ret = emu.run_file( filename, args )
 
 print emu.stats
 
