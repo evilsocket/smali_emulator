@@ -31,7 +31,9 @@ class String:
             'charAt(I)C': String.charat,
             'toCharArray()[C': String.tochararray,
             'intern()Ljava/lang/String;': String.repr_intern,
-            'valueOf([CII)Ljava/lang/String;': String.valueof
+            'valueOf([CII)Ljava/lang/String;' :String.valueof,
+            'length()I': String.length,
+            'substring(II)Ljava/lang/String;' : String.ssubs,
         }
 
     @staticmethod
@@ -57,7 +59,15 @@ class String:
         vm.return_v = list(vm[this])
 
     @staticmethod
-    def valueof(vm, this, args):
-        lstring = "".join(vm[this])
-        vm.return_v =lstring[int(vm[args[0]]):int(vm[args[1]])]
+    def length(vm, this, args):
+        vm.return_v = len(vm[this])
+
+    @staticmethod
+    def valueof(vm,this,args):
+        v = "".join(vm[this])
+        vm.return_v = v[int(vm[args[0]]):int(vm[args[1]])]
+
+    @staticmethod
+    def ssubs(vm,this,args):
+        vm.return_v = vm[this][int(vm[args[0]]):int(vm[args[1]])]
 

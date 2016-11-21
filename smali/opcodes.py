@@ -257,6 +257,14 @@ class op_DivInt(OpCode):
     def eval(vm, vx, vy, vz):
         vm[vx] = vm[vy] / vm[vz]
 
+class op_DivIntLit(OpCode):
+    def __init__(self):
+        OpCode.__init__(self, '^div-int/lit\d+ (.+),\s*(.+),\s*(.+)')
+
+    @staticmethod
+    def eval(vm, vx, vy, lit):
+        vm[vx] = vm[vy] / OpCode.get_int_value(lit)
+
 class op_AddInt(OpCode):
     def __init__(self):
         OpCode.__init__(self, '^add-int (.+),\s*(.+),\s*(.+)')
@@ -296,7 +304,7 @@ class op_AndInt(OpCode):
     @staticmethod
     def eval(vm, vx, vy, vz):
         vm[vx] = vm[vy] & vm[vz]
-
+        
 class op_AndIntLit(OpCode):
     def __init__(self):
         OpCode.__init__(self, '^and-int/lit\d+ (.+),\s*(.+),\s*(.+)')
@@ -305,7 +313,6 @@ class op_AndIntLit(OpCode):
     def eval(vm, vx, vy, lit):
         vm[vx] = int(vm[vy]) & OpCode.get_int_value(lit)
 
-        
 class op_OrInt(OpCode):
     def __init__(self):
         OpCode.__init__(self, '^or-int (.+),\s*(.+),\s*(.+)')
@@ -313,6 +320,17 @@ class op_OrInt(OpCode):
     @staticmethod
     def eval(vm, vx, vy, vz):
         vm[vx] = vm[vy] | vm[vz]
+
+class op_ShlIntLit(OpCode):
+	#shl-int/lit8 vx, vy, lit8
+    def __init__(self):
+        OpCode.__init__(self, '^shl-int/lit\d+ (.+),\s*(.+),\s*(.+)')
+
+    @staticmethod
+    def eval(vm, vx, vy, lit):
+        vm[vx] = vm[vy] << OpCode.get_int_value(lit)
+	
+
 
 class op_GoTo(OpCode):
     def __init__(self):
@@ -374,7 +392,10 @@ class op_IntToType(OpCode):
     def eval(vm, ctype, vx, vy):
         if ctype == 'char':
             vm[vx] = chr( vm[vy] & 0xFF )
-
+        if ctype == 'byte' :
+            a = vm[vy]
+            a1 = a << 24
+            vm[vx] = a1 >> 24
         else:
             vm.emu.fatal( "Unsupported type '%s'." % ctype )
 
