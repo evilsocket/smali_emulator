@@ -19,13 +19,15 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 from smali.objects.string import String
 from smali.objects.string_builder import StringBuilder
+from smali.objects.integer import Integer
 
 # This class holds the mapping of Java objects and methods to their Python respective.
 class ObjectMapping(object):
     def __init__(self):
         self.mapping = {
             String.name(): String.methods(),
-            StringBuilder.name(): StringBuilder.methods()
+            StringBuilder.name(): StringBuilder.methods(),
+            Integer.name(): Integer.methods(),
         }
 
     @staticmethod

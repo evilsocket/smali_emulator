@@ -249,6 +249,28 @@ class op_XorInt2Addr(OpCode):
         else:
             vm[vx] ^= ord(vm[vy])
 
+class op_XorIntLit(OpCode):
+    #xor-int/lit8 v0, v0, 0x26
+
+    def __init__(self):
+        OpCode.__init__(self, '^xor-int/lit\d+ (.+),\s*(.+),\s*(.+)')
+
+    @staticmethod
+    def eval(vm, vx, vy, lit):
+        if isinstance(vm[vy],int):
+            ii = int(vm[vy])
+        else:
+            ii = ord(vm[vy])
+        vm[vx] = ii ^ OpCode.get_int_value(lit)
+
+class op_DivIntLit(OpCode):
+    def __init__(self):
+        OpCode.__init__(self, '^div-int/lit\d+ (.+),\s*(.+),\s*(.+)')
+
+    @staticmethod
+    def eval(vm, vx, vy, lit):
+        vm[vx] = vm[vy] / OpCode.get_int_value(lit)
+
 class op_DivInt(OpCode):
     def __init__(self):
         OpCode.__init__(self, '^div-int (.+),\s*(.+),\s*(.+)')
@@ -256,6 +278,14 @@ class op_DivInt(OpCode):
     @staticmethod
     def eval(vm, vx, vy, vz):
         vm[vx] = vm[vy] / vm[vz]
+
+class op_DivIntLit(OpCode):
+    def __init__(self):
+        OpCode.__init__(self, '^div-int/lit\d+ (.+),\s*(.+),\s*(.+)')
+
+    @staticmethod
+    def eval(vm, vx, vy, lit):
+        vm[vx] = vm[vy] / OpCode.get_int_value(lit)
 
 class op_AddInt(OpCode):
     def __init__(self):
@@ -296,7 +326,7 @@ class op_AndInt(OpCode):
     @staticmethod
     def eval(vm, vx, vy, vz):
         vm[vx] = vm[vy] & vm[vz]
-
+        
 class op_AndIntLit(OpCode):
     def __init__(self):
         OpCode.__init__(self, '^and-int/lit\d+ (.+),\s*(.+),\s*(.+)')
@@ -305,7 +335,6 @@ class op_AndIntLit(OpCode):
     def eval(vm, vx, vy, lit):
         vm[vx] = int(vm[vy]) & OpCode.get_int_value(lit)
 
-        
 class op_OrInt(OpCode):
     def __init__(self):
         OpCode.__init__(self, '^or-int (.+),\s*(.+),\s*(.+)')
@@ -313,6 +342,17 @@ class op_OrInt(OpCode):
     @staticmethod
     def eval(vm, vx, vy, vz):
         vm[vx] = vm[vy] | vm[vz]
+
+class op_ShlIntLit(OpCode):
+	#shl-int/lit8 vx, vy, lit8
+    def __init__(self):
+        OpCode.__init__(self, '^shl-int/lit\d+ (.+),\s*(.+),\s*(.+)')
+
+    @staticmethod
+    def eval(vm, vx, vy, lit):
+        vm[vx] = vm[vy] << OpCode.get_int_value(lit)
+	
+
 
 class op_GoTo(OpCode):
     def __init__(self):
@@ -374,9 +414,12 @@ class op_IntToType(OpCode):
     def eval(vm, ctype, vx, vy):
         if ctype == 'char':
             vm[vx] = chr( vm[vy] & 0xFF )
-
+        elif ctype == 'byte' :
+            a = vm[vy]
+            a1 = a << 24
+            vm[vx] = a1 >> 24
         else:
-            vm.emu.fatal( "Unsupported type '%s'." % ctype )
+            vm.emu.fatal( "Unsupported type '%s' ." % ctype )
 
 class op_SPut(OpCode):
     def __init__(self):
