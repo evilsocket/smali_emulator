@@ -16,14 +16,19 @@
 # program. If not, go to http://www.gnu.org/licenses/gpl.html
 # or write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+
+
 import re
 from smali.opcodes import OpCode
 
-# Preprocess try/catch blocks.
+
 class TryCatchPreprocessor:
+    """Pre process try/catch blocks."""
+    # TODO: Save exception type for specific catch.
+
     @staticmethod
     def check(line):
-        return line.startswith( ':try_start_' )
+        return line.startswith(':try_start_')
 
     @staticmethod
     def process(vm, line, index, lines ):
@@ -36,7 +41,7 @@ class TryCatchPreprocessor:
         #
         #   .catch Ljava/lang/Exception; {:try_start_BLOCK_ID .. :try_end_BLOCK_ID} :LABEL
         #
-        expression = '^\.catch [^\s]+ \{:try_start_%s[ \.]+:try_end_%s\}\s*(\:.+)' % (block_id,block_id )
+        expression = '^\.catch [^\s]+ \{:try_start_%s[ \.]+:try_end_%s\}\s*(\:.+)' % (block_id, block_id)
         for nindex, nline in enumerate(lines[index + 1:]):
             # TODO: Save exception type for specific catch.
             m = re.search( expression, nline)
@@ -45,6 +50,7 @@ class TryCatchPreprocessor:
                 eindex = nindex + index + 1
                 vm.catch_blocks.append((index, eindex, label))
                 break
+
 
 # Preprocess packed-switch blocks.
 class PackedSwitchPreprocessor:
