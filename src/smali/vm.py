@@ -17,35 +17,26 @@
 # program. If not, go to http://www.gnu.org/licenses/gpl.html
 # or write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+
 from smali.object_mapping import ObjectMapping
 
-# The virtual machine used by the emulator.
+
 class VM(object):
+    """The virtual machine used by the emulator."""
     def __init__(self, emulator):
-        # we need the emulator instance in order to call its 'fatal' method.
-        self.emu = emulator
-        # holds the java->python objects and methods mapping
-        self.mapping = ObjectMapping()
-        # map of jump labels to opcodes offsets
-        self.labels = {}
-        # variables container
-        self.variables = {}
-        # try/catch blocks container with opcodes offsets
-        self.catch_blocks = []
-        # packed switches containers
-        self.packed_switches = {}
-        # array data blocks
-        self.array_data = {}
-        # list of thrown exceptions
-        self.exceptions = []
-        # holds the result of the last method invocation
-        self.result = None
-        # holds the return value of the method ( used by return-* opcodes )
-        self.return_v = None
-        # set to true when a return-* opcode is executed
-        self.stop = False
-        # current opcode index
-        self.pc = 0
+
+        self.emu = emulator  # we need the emulator instance in order to call its 'fatal' method.
+        self.mapping = ObjectMapping()  # holds the java->python objects and methods mapping
+        self.labels = {}  # map of jump labels to opcodes offsets
+        self.variables = {}  # variables container
+        self.catch_blocks = []  # try/catch blocks container with opcodes offsets
+        self.packed_switches = {}  # packed switches containers
+        self.array_data = {}  # array data blocks
+        self.exceptions = []  # list of thrown exceptions
+        self.result = None  # holds the result of the last method invocation
+        self.return_v = None  # holds the return value of the method ( used by return-* opcodes )
+        self.stop = False  # set to true when a return-* opcode is executed
+        self.pc = 0  # current opcode index
 
     def __getitem__(self, name):
         return self.variables[name]
@@ -76,7 +67,7 @@ class VM(object):
         return self.mapping.new_instance(self, klass)
 
     def invoke(self, this, class_name, method_name, args):
-        self.mapping.invoke( self, this, class_name, method_name, args )
+        self.mapping.invoke(self, this, class_name, method_name, args )
 
 
 

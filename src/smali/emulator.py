@@ -17,16 +17,19 @@
 # program. If not, go to http://www.gnu.org/licenses/gpl.html
 # or write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
-from smali.opcodes import *
-from smali.vm import VM
-from smali.source import Source
-from smali.preprocessors import *
+from __future__ import print_function
 
 import sys
 import time
 
-# Holds some statistics.
+import smali.opcodes
+from smali.vm import VM
+from smali.source import Source, get_source_from_file
+from smali.preprocessors import *
+
+
 class Stats(object):
+    """Statistics about the running process."""
     def __init__(self, vm):
         self.opcodes = len(vm.opcodes)
         self.preproc = 0
@@ -34,35 +37,29 @@ class Stats(object):
         self.steps = 0
 
     def __repr__(self):
-        s  = "opcode handlers    : %d\n" % self.opcodes
-        s += "preprocessing time : %d ms\n" % self.preproc
-        s += "execution time     : %d ms\n" % self.execution
-        s += "execution steps    : %d\n" % self.steps
-        return s
+        return (
+            "opcode handlers    : {}\n"
+            "preprocessing time : {} ms\n"
+            "execution time     : {} ms\n"
+            "execution steps    : {}\n"
+        ).format(self.opcodes, self.preproc, self.execution, self.steps)
 
-# The main emulator class.
+
 class Emulator(object):
-    def __init__(self):
-        # Instance of the virtual machine.
-        self.vm      = None
-        # Instance of the source file.
-        self.source  = None
-        # Instance of the statistics object.
-        self.stats   = None
-        # Code preprocessors.
-        self.preprocessors = [
-            TryCatchPreprocessor,
-            PackedSwitchPreprocessor,
-            ArrayDataPreprocessor
-        ]
-        # Opcodes handlers.
-        self.opcodes = []
+    """Global Emulator class. Represent a complete virtual machine.
 
-        # Dynamically load opcode handlers.
-        # TODO: Implement missing opcodes.
-        for entry in dir( sys.modules['smali.opcodes'] ):
-            if entry.startswith('op_'):
-                self.opcodes.append( globals()[entry]() )
+    Instanciate this if you want to do some work on the smali file."""
+    def __init__(self, **kwargs):
+        # Code preprocessors.
+        self.preprocessors = [TryCatchPreprocessor, PackedSwitchPreprocessor, ArrayDataPreprocessor]
+
+        self.opcodes = []  # Opcodes handlers.
+        for op_code_symbol in [entry for entry in dir(smali.opcodes) if entry.startswith('op_')]:
+            self.opcodes.append(getattr(smali.opcodes, op_code_symbol)())
+
+        self.vm = kwargs.get('vm') or VM(self)           # Instance of the virtual machine.
+        self.source = kwargs.get('source')               # Instance of the source file.
+        self.stats = kwargs.get('stats') or Stats(self)  # Instance of the statistics object.
 
     def __preprocess(self):
         """
@@ -70,7 +67,7 @@ class Emulator(object):
         for fast lookups while jumping and will pre parse all the try/catch directives.
         """
         next_line = None
-        self.source.lines = map( str.strip, self.source.lines )
+        self.source.lines = [line.strip() for line in self.source.lines]
         for index, line in enumerate(self.source.lines):
             # we're inside a block which was already processed
             if next_line is not None and index <= next_line:
@@ -81,17 +78,15 @@ class Emulator(object):
             elif line == '':
                 continue
 
-            # we've found something to preprocess
-            elif line[0] == ':':
+            elif line[0] == ':':  # we've found something to preprocess
                 # loop each preprocessors and search for the one responsible to parse this line
-                processed = False
+                # TODO: refactor this block. This is a dirty way to do the branching.
+                # TODO: It should use a dictionary or  something like that.
                 for preproc in self.preprocessors:
                     if preproc.check(line):
-                        next_line = preproc.process( self.vm, line, index, self.source.lines )
-                        processed = True
-
-                # no preprocessor found, this is a normal label
-                if processed  is False:
+                        next_line = preproc.process(self.vm, line, index, self.source.lines)
+                        break
+                else:
                     self.vm.labels[line] = index
 
     def __parse_line(self, line):
@@ -116,47 +111,47 @@ class Emulator(object):
         Display an error message, the current line being executed and quit.
         :param message: The error message to display.
         """
-        print
-        print "-------------------------"
-        print "Fatal error on line %03d:\n" % self.vm.pc
-
-        print "  %03d %s" % (self.vm.pc, self.source[self.vm.pc - 1])
-
-        print "\n%s" % message
+        print("\n-------------------------")
+        print("Fatal error on line %03d:\n" % self.vm.pc)
+        print("  %03d %s" % (self.vm.pc, self.source[self.vm.pc - 1]))
+        print("\n%s" % message)
         sys.exit()
 
-    def run_file(self, filename, args = {}, trace=False):
-        fd = open(filename, 'r')
-        return self.run(fd, args, trace)
+    def run_file(self, filename, args={}, trace=False):
+        return self.run(get_source_from_file(filename), args, trace)
 
+    def run_source(self, source_code, args={}, trace=False):
+        return self.run(Source(lines=source_code), args, trace)
 
-    def run(self, fd, args = {}, trace=False, vm=None):
-        """
-        Load a smali file and start emulating it.
-        :param filename: The path of the file to load and emulate.
-        :param args: A dictionary of optional initialization variables for the VM, mostly used for arguments.
-        :param trace: If true every opcode being executed will be printed.
-        :return: The return value of the emulated method or None if no return-* opcode was executed.
-        """
-        OpCode.trace = trace
-        self.source = Source(fd)
-        if vm is None:
-            self.vm     = VM(self)
-        else:
-            self.vm = vm
-        self.stats  = Stats(self)
-
-        if len(args) > 0:
-            self.vm.variables.update(args)
-
+    def preproc_source(self, source_object=None):
+        """Preprocess labels and try/catch blocks for fast lookup."""
+        self.source = self.source or source_object
         s = time.time() * 1000
-        # Preprocess labels and try/catch blocks for fast lookup.
         self.__preprocess()
         e = time.time() * 1000
         self.stats.preproc = e - s
 
-        s = time.time() * 1000
+    def run(self, source_object, args={}, trace=False, vm=None):
+        """
+        Load a smali file and start emulating it.
+        :param source_object: A Source() instance containing the source code to run.
+        :param args: A dictionary of optional initialization variables for the VM, used for arguments.
+        :param trace: If true every opcode being executed will be printed.
+        :return: The return value of the emulated method or None if no return-* opcode was executed.
+        """
+        OpCode.trace = trace
+        self.source = source_object
+        self.vm = VM(self) if not vm else vm
+        self.stats = Stats(self)
+
+        if len(args) > 0:
+            self.vm.variables.update(args)
+
+        self.preproc_source(self.source)
+
         # Loop each line and emulate.
+
+        s = time.time() * 1000
         while self.vm.stop is False and self.source.has_line(self.vm.pc):
             self.stats.steps += 1
             line = self.source[self.vm.pc]
@@ -166,7 +161,7 @@ class Emulator(object):
                 continue
 
             elif self.__parse_line(line) is False:
-                self.fatal( "Unsupported opcode." )
+                self.fatal("Unsupported opcode.")
 
         e = time.time() * 1000
         self.stats.execution = e - s

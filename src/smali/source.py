@@ -19,12 +19,25 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 
 # Class to hold the source file data.
-class Source(object):
-    def __init__(self, fd):
-        self.fd = fd
-        self.lines    = fd.readlines()
 
-    def has_line(self,index):
+
+class MissingSource(Exception):
+    pass
+
+def get_source_from_file(filename):
+    with open(filename, 'r') as fd:
+        source_code = Source(lines=fd.readlines())
+    return source_code
+
+
+class Source(object):
+    def __init__(self, lines=None):
+        if not lines:
+            raise MissingSource("Missing Source Code.")
+
+        self.lines = lines[:]
+
+    def has_line(self, index):
         return 0 <= index < len(self.lines)
 
     def __getitem__(self, index):
