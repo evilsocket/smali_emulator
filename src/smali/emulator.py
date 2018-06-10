@@ -49,20 +49,17 @@ class Emulator(object):
     """Global Emulator class. Represent a complete virtual machine.
 
     Instanciate this if you want to do some work on the smali file."""
-    def __init__(self):
-        # Instance of the virtual machine.
-        self.vm = None
-        # Instance of the source file.
-        self.source = None
-        # Instance of the statistics object.
-        self.stats = None
+    def __init__(self, **kwargs):
         # Code preprocessors.
         self.preprocessors = [TryCatchPreprocessor, PackedSwitchPreprocessor, ArrayDataPreprocessor]
 
         self.opcodes = []  # Opcodes handlers.
-
         for op_code_symbol in [entry for entry in dir(smali.opcodes) if entry.startswith('op_')]:
             self.opcodes.append(getattr(smali.opcodes, op_code_symbol)())
+
+        self.vm = kwargs.get('vm') or VM(self)           # Instance of the virtual machine.
+        self.source = kwargs.get('source')               # Instance of the source file.
+        self.stats = kwargs.get('stats') or Stats(self)  # Instance of the statistics object.
 
     def __preprocess(self):
         """
@@ -80,7 +77,6 @@ class Emulator(object):
             # skip empty lines
             elif line == '':
                 continue
-
 
             elif line[0] == ':':  # we've found something to preprocess
                 # loop each preprocessors and search for the one responsible to parse this line
@@ -111,17 +107,13 @@ class Emulator(object):
         return line == "" or line[0] == '#' or line[0] == ':' or line[0] == '.'
 
     def fatal(self, message):
-        self.vm.fatal(message, position=self.vm.pc - 1)
         """
         Display an error message, the current line being executed and quit.
         :param message: The error message to display.
         """
-        print()
-        print("-------------------------")
+        print("\n-------------------------")
         print("Fatal error on line %03d:\n" % self.vm.pc)
-
         print("  %03d %s" % (self.vm.pc, self.source[self.vm.pc - 1]))
-
         print("\n%s" % message)
         sys.exit()
 
@@ -130,6 +122,14 @@ class Emulator(object):
 
     def run_source(self, source_code, args={}, trace=False):
         return self.run(Source(lines=source_code), args, trace)
+
+    def preproc_source(self, source_object=None):
+        """Preprocess labels and try/catch blocks for fast lookup."""
+        self.source = self.source or source_object
+        s = time.time() * 1000
+        self.__preprocess()
+        e = time.time() * 1000
+        self.stats.preproc = e - s
 
     def run(self, source_object, args={}, trace=False, vm=None):
         """
@@ -141,21 +141,17 @@ class Emulator(object):
         """
         OpCode.trace = trace
         self.source = source_object
-
         self.vm = VM(self) if not vm else vm
         self.stats = Stats(self)
 
         if len(args) > 0:
             self.vm.variables.update(args)
 
-        s = time.time() * 1000
-        # Preprocess labels and try/catch blocks for fast lookup.
-        self.__preprocess()
-        e = time.time() * 1000
-        self.stats.preproc = e - s
+        self.preproc_source(self.source)
+
+        # Loop each line and emulate.
 
         s = time.time() * 1000
-        # Loop each line and emulate.
         while self.vm.stop is False and self.source.has_line(self.vm.pc):
             self.stats.steps += 1
             line = self.source[self.vm.pc]
