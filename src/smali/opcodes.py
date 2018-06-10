@@ -19,6 +19,7 @@
 from __future__ import print_function
 
 import re
+import ast
 
 # TODO: Implement missing opcodes.
 
@@ -31,10 +32,7 @@ class OpCode(object):
 
     @staticmethod
     def get_int_value(val):
-        if "0x" in (val[1:3], val[0:2]):
-            return int(val, 16)
-        else:
-            return int( val )
+        return ast.literal_eval(val)
 
     def parse(self, line, vm):
         m = self.expression.search(line)
@@ -42,7 +40,7 @@ class OpCode(object):
             return False
 
         if OpCode.trace is True:
-            print("%03d %s" % ( vm.pc, line ))
+            print("%03d %s" % (vm.pc, line))
 
         try:
             self.eval(vm, *[x.strip() if x is not None else x for x in m.groups()])
@@ -51,8 +49,17 @@ class OpCode(object):
 
         return True
 
+    @staticmethod
+    def eval(vm, *args):
+        """Implementation must be declared in the corresponding opcode class.
+
+        - vm stores the current vm state.
+        - args is the list of argument for this op code."""
+        raise NotImplementedError()
+
 
 class op_Const(OpCode):
+    """Evaluate a constant object."""
     def __init__(self):
         OpCode.__init__(self, '^const(?:/\d+)? (.+),\s*(.+)')
 
@@ -62,6 +69,7 @@ class op_Const(OpCode):
 
 
 class op_ConstString(OpCode):
+    """Evaluate a constant string."""
     def __init__(self):
         OpCode.__init__(self, '^const-string(?:/jumbo)? (.+),\s*"(.*)"')
 
@@ -71,6 +79,7 @@ class op_ConstString(OpCode):
 
 
 class op_Move(OpCode):
+    """Evaluate a move."""
     def __init__(self):
         OpCode.__init__(self, '^move(?:-object)? (.+),\s*(.+)')
 
@@ -80,6 +89,7 @@ class op_Move(OpCode):
 
 
 class op_MoveResult(OpCode):
+    """MoveResult"""
     def __init__(self):
         OpCode.__init__(self, '^move-result(?:-object)? (.+)')
 

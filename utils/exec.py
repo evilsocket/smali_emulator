@@ -13,6 +13,7 @@ Options:
                      If not provided, the script will introspect the method
                      and give insights about what parameters are expected.
 """
+
 from __future__ import unicode_literals
 
 from docopt import docopt

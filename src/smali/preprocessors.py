@@ -44,7 +44,7 @@ class TryCatchPreprocessor:
         expression = '^\.catch [^\s]+ \{:try_start_%s[ \.]+:try_end_%s\}\s*(\:.+)' % (block_id, block_id)
         for nindex, nline in enumerate(lines[index + 1:]):
             # TODO: Save exception type for specific catch.
-            m = re.search( expression, nline)
+            m = re.search(expression, nline)
             if m:
                 label = m.group(1)
                 eindex = nindex + index + 1
@@ -52,15 +52,15 @@ class TryCatchPreprocessor:
                 break
 
 
-# Preprocess packed-switch blocks.
 class PackedSwitchPreprocessor:
+    """Pre-process packed-switch blocks."""
     @staticmethod
     def check(line):
         return line.startswith( ':pswitch_data' )
 
     @staticmethod
     def process(vm, name, index, lines):
-        pswitch   = {"first_value": 0, "cases": []}
+        pswitch = {"first_value": 0, "cases": []}
         next_line = index
 
         for nindex, nline in enumerate(lines[index + 1:]):
@@ -78,15 +78,14 @@ class PackedSwitchPreprocessor:
                 vm.fatal("Unexpected line '%s' while preprocessing packed-switch." % nline)
 
         vm.packed_switches[name] = pswitch
-
-        # keep preprocessing from the end of this block
         return next_line
 
-# Preprocess array-data blocks.
+
 class ArrayDataPreprocessor:
+    """Pre-process array-data blocks."""
     @staticmethod
     def check(line):
-        return line.startswith( ':array_' )
+        return line.startswith(':array_')
 
     @staticmethod
     def process(vm, name, index, lines):

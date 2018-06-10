@@ -9,7 +9,8 @@ This project is very much a work in progress, feel free to submit a patch.
 As an example, you can run:
 
 ```shell
-./utils/exec.py -i ./examples/decryptor.smali -m field5 \
+cd utils;
+./exec.py -i decryptor.smali -m field5 \
 -p '{"p0":[-62,-99,-106,-125,-123,-105,-98,-37,-105,-97,-103,-41,-118,-97,-113,-103,-109,-104,-115,111,98,103,35,52],"p1": 19}'
 ```
 
