@@ -17,6 +17,8 @@
 # program. If not, go to http://www.gnu.org/licenses/gpl.html
 # or write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+from __future__ import print_function
+
 from smali.opcodes import *
 from smali.vm import VM
 from smali.source import Source
@@ -44,11 +46,11 @@ class Stats(object):
 class Emulator(object):
     def __init__(self):
         # Instance of the virtual machine.
-        self.vm      = None
+        self.vm = None
         # Instance of the source file.
-        self.source  = None
+        self.source = None
         # Instance of the statistics object.
-        self.stats   = None
+        self.stats = None
         # Code preprocessors.
         self.preprocessors = [
             TryCatchPreprocessor,
@@ -70,7 +72,7 @@ class Emulator(object):
         for fast lookups while jumping and will pre parse all the try/catch directives.
         """
         next_line = None
-        self.source.lines = map( str.strip, self.source.lines )
+        self.source.lines = list(map( str.strip, self.source.lines ))
         for index, line in enumerate(self.source.lines):
             # we're inside a block which was already processed
             if next_line is not None and index <= next_line:
@@ -91,7 +93,7 @@ class Emulator(object):
                         processed = True
 
                 # no preprocessor found, this is a normal label
-                if processed  is False:
+                if processed is False:
                     self.vm.labels[line] = index
 
     def __parse_line(self, line):
@@ -116,21 +118,25 @@ class Emulator(object):
         Display an error message, the current line being executed and quit.
         :param message: The error message to display.
         """
-        print
-        print "-------------------------"
-        print "Fatal error on line %03d:\n" % self.vm.pc
+        print()
+        print("-------------------------")
+        print("Fatal error on line %03d:\n" % self.vm.pc)
 
-        print "  %03d %s" % (self.vm.pc, self.source[self.vm.pc - 1])
+        print("  %03d %s" % (self.vm.pc, self.source[self.vm.pc - 1]))
 
-        print "\n%s" % message
+        print("\n%s" % message)
         sys.exit()
 
-    def run_file(self, filename, args = {}, trace=False):
-        fd = open(filename, 'r')
-        return self.run(fd, args, trace)
+    def run_file(self, filename, args={}, trace=False):
+        with open(filename, 'r') as fd:
+            source_code = Source(lines=fd.readlines())
 
+        return self.run(source_code, args, trace)
 
-    def run(self, fd, args = {}, trace=False, vm=None):
+    def run_source(self, source_code, args={}, trace=False):
+        return self.run(Source(lines=source_code), args, trace)
+
+    def run(self, source_object, args={}, trace=False, vm=None):
         """
         Load a smali file and start emulating it.
         :param filename: The path of the file to load and emulate.
@@ -139,12 +145,10 @@ class Emulator(object):
         :return: The return value of the emulated method or None if no return-* opcode was executed.
         """
         OpCode.trace = trace
-        self.source = Source(fd)
-        if vm is None:
-            self.vm     = VM(self)
-        else:
-            self.vm = vm
-        self.stats  = Stats(self)
+        self.source = source_object
+
+        self.vm = VM(self) if not vm else vm
+        self.stats = Stats(self)
 
         if len(args) > 0:
             self.vm.variables.update(args)
@@ -166,7 +170,7 @@ class Emulator(object):
                 continue
 
             elif self.__parse_line(line) is False:
-                self.fatal( "Unsupported opcode." )
+                self.fatal("Unsupported opcode.")
 
         e = time.time() * 1000
         self.stats.execution = e - s

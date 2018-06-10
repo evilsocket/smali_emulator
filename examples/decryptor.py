@@ -17,7 +17,10 @@
 # program. If not, go to http://www.gnu.org/licenses/gpl.html
 # or write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+from __future__ import print_function
+
 import sys, os
+
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
 from smali.emulator import Emulator
@@ -34,7 +37,8 @@ args = {
 
 ret = emu.run_file( filename, args )
 
-print emu.stats
+print(emu.stats)
 
-print "RESULT:\n"
-print "'%s'" % ret
+print("RESULT:\n")
+
+print("'%s'" % ret)

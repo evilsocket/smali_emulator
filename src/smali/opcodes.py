@@ -16,6 +16,8 @@
 # program. If not, go to http://www.gnu.org/licenses/gpl.html
 # or write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+from __future__ import print_function
+
 import re
 
 # Base class for all Dalvik opcodes ( see http://pallergabor.uw.hu/androidblog/dalvik_opcodes.html ).
@@ -38,7 +40,7 @@ class OpCode(object):
             return False
 
         if OpCode.trace is True:
-            print "%03d %s" % ( vm.pc, line )
+            print("%03d %s" % ( vm.pc, line ))
 
         try:
             self.eval(vm, *[x.strip() if x is not None else x for x in m.groups()])
@@ -399,7 +401,7 @@ class op_Invoke(OpCode):
 
     @staticmethod
     def eval(vm, args, call):
-        args = map(str.strip, args.split(','))
+        args = list(map(str.strip, args.split(',')))
         this = args[0]
         args = args[1:]
         klass, method  = call.split(';->')
