@@ -31,8 +31,8 @@ class OpCode(object):
 
     @staticmethod
     def get_int_value(val):
-        if "0x" in val:
-            return int( val, 16 )
+        if "0x" in (val[1:3], val[0:2]):
+            return int(val, 16)
         else:
             return int( val )
 
