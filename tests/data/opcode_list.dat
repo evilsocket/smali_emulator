@@ -1,0 +1,256 @@
+nop
+move vx, vy
+move/from16 vx, vy
+move/16
+move-wide 
+move-wide/from16 vx, vy
+move-wide/16
+move-object vx, vy
+move-object/from16 vx, vy
+move-object/16
+move-result vx
+move-result-wide vx
+move-result-object vx
+move-exception vx
+return-void
+return vx
+return-wide vx
+return-object vx
+const/4 vx,lit4
+const/16 vx,lit16
+const vx, lit32
+const/high16 v0, lit16
+const-wide/16 vx, lit16
+const-wide/32 vx, lit32
+const-wide vx, lit64
+const-wide/high16 vx,lit16
+const-string vx,string_id
+const-string-jumbo
+const-class vx, type_id
+monitor-enter vx
+monitor-exit
+check-cast vx, type_id
+instance-of vx, vy, type_id
+array-length vx, vy
+new-instance vx, type
+new-array vx, vy, type_id
+filled-new-array {parameters}, type_id
+filled-new-array-range {vx..vy}, type_id
+fill-array-data vx,array_data_offset
+throw vx
+goto target
+goto/16 target
+goto/32 target
+packed-switch vx, table
+sparse-switch vx, table
+cmpl-float
+cmpg-float vx, vy, vz
+cmpl-double vx, vy, vz
+cmpg-double vx, vy, vz
+cmp-long vx, vy, vz
+if-eq vx, vy, target
+if-ne vx, vy, target
+if-lt vx, vy, target
+if-ge vx, vy, target
+if-gt vx, vy, target
+if-le vx, vy, target
+if-eqz vx, target
+if-nez vx, target
+if-ltz vx, target
+if-gez vx, target
+if-gtz vx, target
+if-lez vx, target
+unused_3E
+unused_3F
+unused_40
+unused_41
+unused_42
+unused_43
+aget vx, vy, vz
+aget-wide vx, vy, vz
+aget-object vx, vy, vz
+aget-boolean vx, vy, vz
+aget-byte vx, vy, vz
+aget-char vx, vy, vz
+aget-short vx, vy, vz
+aput vx, vy, vz
+aput-wide vx, vy, vz
+aput-object vx, vy, vz
+aput-boolean vx, vy, vz
+aput-byte vx, vy, vz
+aput-char vx, vy, vz
+aput-short vx, vy, vz
+iget vx, vy, field_id
+iget-wide vx, vy, field_id
+iget-object vx, vy, field_id
+iget-boolean vx, vy, field_id
+iget-byte vx, vy, field_id
+iget-char vx, vy, field_id
+iget-short vx, vy, field_id
+iput vx, vy, field_id
+iput-wide vx, vy, field_id
+iput-object vx, vy, field_id
+iput-boolean vx, vy, field_id
+iput-byte vx, vy, field_id
+iput-char vx, vy, field_id
+iput-short vx, vy, field_id
+sget vx, field_id
+sget-wide vx, field_id
+sget-object vx, field_id
+sget-boolean vx, field_id
+sget-byte vx, field_id
+sget-char vx, field_id
+sget-short vx, field_id
+sput vx, field_id
+sput-wide vx, field_id
+sput-object vx, field_id
+sput-boolean vx, field_id
+sput-byte vx, field_id
+sput-char vx, field_id
+sput-short vx, field_id
+invoke-virtual {parameters}, methodtocall
+invoke-super {parameter}, methodtocall
+invoke-direct {parameters}, methodtocall
+invoke-static {parameters}, methodtocall
+invoke-interface {parameters}, methodtocall
+unused_73
+invoke-virtual/range {vx..vy}, methodtocall
+invoke-super/range
+invoke-direct/range {vx..vy}, methodtocall
+invoke-static/range {vx..vy}, methodtocall
+invoke-interface-range
+unused_79
+unused_7A
+neg-int vx, vy
+not-int vx, vy
+neg-long vx, vy
+not-long vx, vy
+neg-float vx, vy
+neg-double vx, vy
+int-to-long vx, vy
+int-to-float vx, vy
+int-to-double vx, vy
+long-to-int vx, vy
+long-to-float vx, vy
+long-to-double vx, vy
+float-to-int vx, vy
+float-to-long vx, vy
+float-to-double vx, vy
+double-to-int vx, vy
+double-to-long vx, vy
+double-to-float vx, vy
+int-to-byte vx, vy
+int-to-char vx, vy
+int-to-short vx, vy
+add-int vx, vy, vz
+sub-int vx, vy, vz
+mul-int vx, vy, vz
+div-int vx, vy, vz
+rem-int vx, vy, vz
+and-int vx, vy, vz
+or-int vx, vy, vz
+xor-int vx, vy, vz
+shl-int vx, vy, vz
+shr-int vx, vy, vz
+ushr-int vx, vy, vz
+add-long vx, vy, vz
+sub-long vx, vy, vz
+mul-long vx, vy, vz
+div-long vx, vy, vz
+rem-long vx, vy, vz
+and-long vx, vy, vz
+or-long vx, vy, vz
+xor-long vx, vy, vz
+shl-long vx, vy, vz
+shr-long vx, vy, vz
+ushr-long vx, vy, vz
+add-float vx, vy, vz
+sub-float vx, vy, vz
+mul-float vx, vy, vz
+div-float vx, vy, vz
+rem-float vx, vy, vz
+add-double vx, vy, vz
+sub-double vx, vy, vz
+mul-double vx, vy, vz
+div-double vx, vy, vz
+rem-double vx, vy, vz
+add-int/2addr vx, vy
+sub-int/2addr vx, vy
+mul-int/2addr vx, vy
+div-int/2addr vx, vy
+rem-int/2addr vx, vy
+and-int/2addr vx, vy
+or-int/2addr vx, vy
+xor-int/2addr vx, vy
+shl-int/2addr vx, vy
+shr-int/2addr vx, vy
+ushr-int/2addr vx, vy
+add-long/2addr vx, vy
+sub-long/2addr vx, vy
+mul-long/2addr vx, vy
+div-long/2addr vx, vy
+rem-long/2addr vx, vy
+and-long/2addr vx, vy
+or-long/2addr vx, vy
+xor-long/2addr vx, vy
+shl-long/2addr vx, vy
+shr-long/2addr vx, vy
+ushr-long/2addr vx, vy
+add-float/2addr vx, vy
+sub-float/2addr vx, vy
+mul-float/2addr vx, vy
+div-float/2addr vx, vy
+rem-float/2addr vx, vy
+add-double/2addr vx, vy
+sub-double/2addr vx, vy
+mul-double/2addr vx, vy
+div-double/2addr vx, vy
+rem-double/2addr vx, vy
+add-int/lit16 vx, vy, lit16
+sub-int/lit16 vx, vy, lit16
+mul-int/lit16 vx, vy, lit16
+div-int/lit16 vx, vy, lit16
+rem-int/lit16 vx, vy, lit16
+and-int/lit16 vx, vy,lit16
+or-int/lit16 vx, vy, lit16
+xor-int/lit16 vx, vy, lit16
+add-int/lit8 vx, vy, lit8
+sub-int/lit8 vx, vy, lit8
+mul-int/lit8 vx, vy, lit8
+div-int/lit8 vx, vy, lit8
+rem-int/lit8 vx, vy, lit8
+and-int/lit8 vx, vy, lit8
+or-int/lit8 vx, vy, lit8
+xor-int/lit8 vx, vy, lit8
+shl-int/lit8 vx, vy, lit8
+shr-int/lit8 vx, vy, lit8
+ushr-int/lit8 vx, vy, lit8
+unused_E3
+unused_E4
+unused_E5
+unused_E6
+unused_E7
+unused_E8
+unused_E9
+unused_EA
+unused_EB
+unused_EC
+unused_ED
+execute-inline {parameters}, inline ID
+unused_EF
+invoke-direct-empty
+unused_F1
+iget-quick vx, vy, offset
+iget-wide-quick vx, vy, offset
+iget-object-quick vx, vy, offset
+iput-quick vx, vy, offset
+iput-wide-quick vx, vy, offset
+iput-object-quick vx, vy, offset
+invoke-virtual-quick {parameters}, vtable offset
+invoke-virtual-quick/range {parameter range}, vtable offset
+invoke-super-quick {parameters}, vtable offset
+invoke-super-quick/range {register range}, vtable offset
+unused_FC
+unused_FD
+unused_FE
+unused_FF

@@ -16,7 +16,6 @@ import smali.source
 import smali.emulator
 
 
-
 def main(arguments):
     filename = arguments.get('-i')
     if arguments.get('-e'):

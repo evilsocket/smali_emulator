@@ -17,11 +17,19 @@
 # program. If not, go to http://www.gnu.org/licenses/gpl.html
 # or write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+
+import re
+
+from smali.parser import (
+    extract_class_name,
+)
 from smali.objects.string import String
 from smali.objects.string_builder import StringBuilder
 from smali.objects.integer import Integer
 
 # This class holds the mapping of Java objects and methods to their Python respective.
+
+
 class ObjectMapping(object):
     def __init__(self):
         self.mapping = {
@@ -31,16 +39,8 @@ class ObjectMapping(object):
         }
 
     @staticmethod
-    def __demangle_class_name(vm, name):
-        """
-        Demangle a class name.
-        :param vm: Instance of the VM.
-        :param name: The name of the class to be demangled.
-        :return: The demangled class name.
-        """
-        if name[0] != 'L':
-            vm.emu.fatal("'%s' does not name a class." % name)
-        return name[1:].replace('/', '.').replace(';', '')
+    def __demangle_class_name(name):
+        return extract_class_name(name)
 
     def new_instance(self, vm, klass):
         """
@@ -49,7 +49,7 @@ class ObjectMapping(object):
         :param klass: Mangled class name to instanciate.
         :return: The new class instance.
         """
-        class_name = self.__demangle_class_name( vm, klass )
+        class_name = self.__demangle_class_name(klass)
 
         if class_name in self.mapping:
             if 'new-instance' in self.mapping[class_name]:
@@ -69,14 +69,14 @@ class ObjectMapping(object):
         :param method_name: Mangled method name to invoke.
         :param args: Arguments of the method.
         """
-        class_name = self.__demangle_class_name( vm, klass )
+        class_name = self.__demangle_class_name(klass)
         if class_name in self.mapping:
             if method_name in self.mapping[class_name]:
-                invokeResult = self.mapping[class_name][method_name]( vm, this, args )
+                invokeResult = self.mapping[class_name][method_name](vm, this, args)
                 if not invokeResult is None:
                     vm.return_v = invokeResult
 
             else:
-                vm.emu.fatal("Unsupported method '%s' for class '%s'." % ( method_name, class_name ))
+                vm.emu.fatal("Unsupported method '%s' for class '%s'." % (method_name, class_name))
         else:
             vm.emu.fatal("Unsupported class '%s'." % class_name)

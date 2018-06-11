@@ -1,3 +1,5 @@
+#!/usr/bin/env python2
+
 """Exec Smali Files.
 
 Usage:
@@ -12,21 +14,21 @@ Options:
                      and give insights about what parameters are expected.
 """
 
+from __future__ import unicode_literals
+
 from docopt import docopt
 import smali.emulator
+import ast
+
 
 def main(arguments):
     filename = arguments.get('-i')
-    method = arguments.get('-m')
     parameters = arguments.get('-p')
-    vm = smali.emulator.Emulator()
+    parameters = ast.literal_eval(parameters) if parameters else {}
+    emu = smali.emulator.Emulator()
+    result = emu.run_file(filename, parameters)
+    print(result)
 
-    if parameters:
-        result = vm.run(filename, method, parameters)
-    else:
-        result = vm.inspect(filename, method)
-
-    print(results)
 
 if __name__ == '__main__':
     main(docopt(__doc__))
